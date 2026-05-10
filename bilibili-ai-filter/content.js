@@ -837,67 +837,6 @@
     }
   }
 
-  async loadSettings() {
-    try {
-      const response = await this.sendMessage(MessageTypes.GET_SETTINGS);
-      if (response && response.settings) {
-        this.settings = {
-          globalEnabled: response.settings.globalEnabled !== false,
-          blockMode: response.settings.blockMode || CONFIG.BLOCK_MODES.HIDE,
-          customKeywords: response.settings.customKeywords || CONFIG.DEFAULT_KEYWORDS
-        };
-      }
-    } catch (e) {
-      console.error('Failed to load settings:', e);
-    }
-  }
-
-  async loadWhitelist() {
-    try {
-      const response = await this.sendMessage(MessageTypes.GET_WHITELIST);
-      if (response && response.whitelist) {
-        this.whitelistChecker.updateWhitelist(response.whitelist);
-      }
-    } catch (e) {
-      console.error('Failed to load whitelist:', e);
-    }
-  }
-
-  async loadBlockRecords() {
-    try {
-      const response = await this.sendMessage(MessageTypes.GET_BLOCK_RECORDS, { limit: 100 });
-      if (response && response.records) {
-        this.recordManager.records = response.records;
-      }
-    } catch (e) {
-      console.error('Failed to load block records:', e);
-    }
-  }
-
-  async saveBlockRecord(record) {
-    try {
-      await this.sendMessage(MessageTypes.ADD_BLOCK_RECORD, record);
-    } catch (e) {
-      console.error('Failed to save block record:', e);
-    }
-  }
-
-  sendMessage(type, data = null) {
-    return new Promise((resolve, reject) => {
-      try {
-        chrome.runtime.sendMessage({ type, data }, (response) => {
-          if (chrome.runtime.lastError) {
-            reject(new Error(chrome.runtime.lastError.message));
-          } else {
-            resolve(response);
-          }
-        });
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
-
   class BilibiliAIFilter {
     constructor() {
       this.extractor = new VideoInfoExtractor();
