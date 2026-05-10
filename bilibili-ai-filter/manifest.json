@@ -18,7 +18,7 @@
         "https://www.bilibili.com/*",
         "https://bilibili.com/*"
       ],
-      "js": ["content-script.js"],
+      "js": ["content.js"],
       "css": ["content-style.css"],
       "run_at": "document_idle"
     }
