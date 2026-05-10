@@ -1,0 +1,16 @@
+/* Bilibili AI 视频屏蔽 - 内容样式 */
+
+[data-ai-blocked="true"] {
+  display: none !important;
+}
+
+.bilibili-ai-filter-active .video-item,
+.bilibili-ai-filter-active .recommend-item,
+.bilibili-ai-filter-active .bili-video-card {
+  transition: opacity 0.3s ease;
+}
+
+.bilibili-ai-filter-fade {
+  opacity: 0.3;
+  pointer-events: none;
+}
