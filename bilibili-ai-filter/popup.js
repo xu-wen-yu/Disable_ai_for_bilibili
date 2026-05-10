@@ -79,7 +79,9 @@
         currentSettings = {
           globalEnabled: settings.globalEnabled !== false,
           blockMode: settings.blockMode || 'hide',
-          customKeywords: settings.customKeywords || [...DEFAULT_KEYWORDS]
+          customKeywords: (settings.customKeywords && settings.customKeywords.length > 0)
+            ? settings.customKeywords
+            : [...DEFAULT_KEYWORDS]
         };
       }
     } catch (error) {
