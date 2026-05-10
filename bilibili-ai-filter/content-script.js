@@ -70,29 +70,35 @@
           '.feed-card',
           '.bili-dyn-list__item',
           '.video-list-item',
-          '.card-box'
+          '.card-box',
+          '.bili-video-card__wrap',
+          '.video-card-container',
+          '[class*="video-card"]'
         ],
         videoTitle: [
+          '.bili-video-card__info--title',
           '.video-card__info--title',
           '.video-title',
-          '.bili-video-card__info--title',
           'a.title',
           'h3.title',
           '.video-name',
           '.bili-video-card__info--tit',
           '.feed-card .title',
-          '[class*="title"] a'
+          '[class*="title"] a',
+          'a[title]',
+          '.bili-video-card__info--tit a'
         ],
         upName: [
+          '.bili-video-card__info--owner',
           '.video-card__info--owner',
           '.up-name',
-          '.bili-video-card__info--owner',
+          '.bili-video-card__info--author',
           '.author',
           '.user-name',
-          '.bili-video-card__info--author',
           '.up-info__name',
           '[class*="owner"]',
-          '[class*="author"]'
+          '[class*="author"]',
+          '.up-info a'
         ],
         tags: [
           '.tag-area',
@@ -363,25 +369,18 @@
         return this.extractVideoPageInfo();
       }
 
-      const titleElement = this.queryFirst(this.selectors.videoTitle);
-      const upElement = this.queryFirst(this.selectors.upName);
+      if (!cardElement) return { title: '', upName: '', description: '', bvid: '', upMid: '', tags: [], pageType: this.pageType };
 
-      const title = cardElement
-        ? this.extractText(cardElement.querySelector(this.selectors.videoTitle[0])) ||
-          this.extractText(cardElement.querySelector('a.title, h3, .video-name'))
-        : this.extractText(titleElement);
+      const title = this.extractText(this.queryFirstInElement(cardElement, this.selectors.videoTitle)) ||
+                    this.extractText(cardElement.querySelector('a[title], a[href*="BV"]'));
 
-      const upName = cardElement
-        ? this.extractText(cardElement.querySelector(this.selectors.upName[0]))
-        : this.extractText(upElement);
+      const upName = this.extractText(this.queryFirstInElement(cardElement, this.selectors.upName));
 
-      const description = cardElement
-        ? this.extractText(cardElement.querySelector(this.selectors.description[0]))
-        : '';
+      const description = this.extractText(this.queryFirstInElement(cardElement, this.selectors.description));
 
       const bvid = this.extractBvid(cardElement);
       const upMid = this.extractUpMid(cardElement);
-      const tags = cardElement ? this.extractTagsFromCard(cardElement) : [];
+      const tags = this.extractTagsFromCard(cardElement);
 
       return {
         title: title || '',
@@ -392,6 +391,19 @@
         tags: tags,
         pageType: this.pageType
       };
+    }
+
+    queryFirstInElement(element, selectors) {
+      if (!element) return null;
+      for (const selector of selectors) {
+        try {
+          const el = element.querySelector(selector);
+          if (el) return el;
+        } catch (e) {
+          console.warn(`Selector error: ${selector}`, e);
+        }
+      }
+      return null;
     }
 
     extractVideoPageInfo() {
@@ -984,20 +996,37 @@
       if (!this.settings.globalEnabled) return;
 
       const cards = this.extractor.getAllVideoCards();
+      console.log(`[Bilibili AI Filter] Found ${cards.length} video cards on ${this.extractor.pageType}`);
 
-      cards.forEach(card => {
+      let processedCount = 0;
+      let skippedCount = 0;
+
+      cards.forEach((card, index) => {
         if (!card) return;
 
         const cacheKey = this.getVideoCacheKey(card);
-        if (this.processedVideos.has(cacheKey)) return;
+        if (this.processedVideos.has(cacheKey)) {
+          skippedCount++;
+          return;
+        }
 
         const videoInfo = this.extractor.extractVideoInfo(card);
 
-        if (!videoInfo.title && !videoInfo.bvid) return;
+        if (!videoInfo.title && !videoInfo.bvid) {
+          console.log(`[Bilibili AI Filter] Card ${index}: no title/bvid found`, card.className);
+          return;
+        }
+
+        if (index < 3) {
+          console.log(`[Bilibili AI Filter] Card ${index}: title="${videoInfo.title?.substring(0, 40)}", up="${videoInfo.upName}"`);
+        }
 
         this.processVideo(card, videoInfo);
         this.processedVideos.add(cacheKey);
+        processedCount++;
       });
+
+      console.log(`[Bilibili AI Filter] Processed ${processedCount}, skipped ${skippedCount}`);
     }
 
     processVideoPage() {
@@ -1048,9 +1077,8 @@
 
     getVideoCacheKey(element) {
       const bvid = this.extractor.extractBvid(element);
-      const title = this.extractor.extractText(
-        element.querySelector(this.extractor.selectors.videoTitle[0])
-      );
+      const titleEl = this.extractor.queryFirstInElement(element, this.extractor.selectors.videoTitle);
+      const title = this.extractor.extractText(titleEl) || '';
 
       return `${bvid}-${title}`.substring(0, 100);
     }
