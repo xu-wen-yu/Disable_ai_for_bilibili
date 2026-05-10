@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B站 AI 视频屏蔽</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <h1>
+      <span class="header-icon">🤖</span>
+      B站 AI 视频屏蔽
+    </h1>
+    <p>智能识别并屏蔽 AI 生成内容</p>
+  </div>
+
+  <div class="main-content">
+    <div class="section">
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">全局屏蔽</div>
+          <div style="font-size: 12px; color: #888;">开启后将自动屏蔽 AI 生成视频</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="globalEnabled" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">
+        <span class="section-title-icon">📝</span>
+        AI 关键词管理
+      </div>
+      <div class="keyword-input-container">
+        <input type="text" class="keyword-input" id="keywordInput" placeholder="输入新关键词，如：AI翻唱">
+        <button class="add-keyword-btn" id="addKeywordBtn">添加</button>
+      </div>
+      <div class="keywords-list" id="keywordsList">
+        <div class="keywords-placeholder" id="keywordsPlaceholder">暂无关键词，请添加</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">
+        <span class="section-title-icon">🎯</span>
+        屏蔽模式
+      </div>
+      <div class="mode-options">
+        <label class="mode-option selected">
+          <input type="radio" name="blockMode" value="hide" class="mode-radio" checked>
+          <div class="mode-content">
+            <div class="mode-label">完全隐藏</div>
+            <div class="mode-desc">列表中不显示 AI 视频</div>
+          </div>
+        </label>
+        <label class="mode-option">
+          <input type="radio" name="blockMode" value="show" class="mode-radio">
+          <div class="mode-content">
+            <div class="mode-label">显示提示</div>
+            <div class="mode-desc">显示 AI 标记但可取消屏蔽</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">
+        <span class="section-title-icon">⚙️</span>
+        高级设置
+      </div>
+      <div class="advanced-buttons">
+        <button class="advanced-btn" id="viewRecordsBtn">
+          <span class="advanced-btn-icon">📋</span>
+          <span>查看屏蔽记录</span>
+          <span class="record-count" id="recordCount">0</span>
+          <span class="advanced-btn-arrow">›</span>
+        </button>
+        <button class="advanced-btn" id="whitelistBtn">
+          <span class="advanced-btn-icon">🚫</span>
+          <span>白名单管理</span>
+          <span class="advanced-btn-arrow">›</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>Bilibili AI Filter v1.0.0</div>
+    <div class="version">让观看更纯净</div>
+  </div>
+
+  <div id="modalContainer"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
